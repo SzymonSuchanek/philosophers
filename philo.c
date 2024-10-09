@@ -6,7 +6,7 @@
 /*   By: ssuchane <ssuchane@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/18 23:00:42 by marvin            #+#    #+#             */
-/*   Updated: 2024/10/09 18:43:24 by ssuchane         ###   ########.fr       */
+/*   Updated: 2024/10/09 18:56:25 by ssuchane         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,15 +84,10 @@ void	validate_input(int ac, char **av)
 	i = 1;
 	while (i < ac)
 	{
-		j = 0;
-		while (av[i][j])
-		{
-			if (av[i][0] == '0')
+		j = -1;
+		while (j++, av[i][j])
+			if (av[i][0] == '0' || (!(av[i][j] >= '0' && av[i][j] <= '9')))
 				ft_error("Arguments need to be of positive value.\n");
-			if (!(av[i][j] >= '0' && av[i][j] <= '9'))
-				ft_error("Arguments need to be of positive value.\n");
-			j++;
-		}
 		i++;
 	}
 }
@@ -112,16 +107,26 @@ int	ft_atoi(char *s)
 	return (result);
 }
 
+void	*routine()
+{
+	
+	return (0);
+}
+
 void	init_data(t_data *data, char **av)
 {
 	int	i;
 
 	data->total_threads = ft_atoi(av[1]);
 	data->philo = malloc(sizeof(t_thread *) * data->total_threads);
+	if (!data->philo)
+		ft_error("Malloc failed\n");
 	i = 0;
 	while (i < data->total_threads)
 	{
 		data->philo[i] = malloc(sizeof(t_thread));
+		if (!data->philo[i])
+			ft_error("Malloc failed\n");
 		data->philo[i]->id = i + 1;
 		data->philo[i]->tt_die = ft_atoi(av[2]);
 		data->philo[i]->tt_eat = ft_atoi(av[3]);
@@ -136,25 +141,19 @@ void	init_data(t_data *data, char **av)
 
 void	init_threads(t_data *data)
 {
-	pthread_t	*threads;
-	t_thread	*philo;
 	int			i;
 
-	threads = data->threads;
-	philo = data->philo;
 	i = 0;
 	while (i < data->total_threads)
 	{
-		threads[i] = pthread_create(&philo[i], NULL, &routine, NULL);
-		if (!data->threads[i])
+		if (pthread_create(&data->threads[i], NULL, &routine, NULL) != 0)
 			ft_error("Thread creating failed.\n");
 		i++;
 	}
 	i = 0;
 	while (i < data->total_threads)
 	{
-		data->threads[i] = pthread_join(data->threads[i], NULL);
-		if (!data->threads[i])
+		if (pthread_join(data->threads[i], NULL) != 0)
 			ft_error("Thread joining failed.\n");
 		i++;
 	}

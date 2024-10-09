@@ -6,7 +6,7 @@
 /*   By: ssuchane <ssuchane@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/08 18:25:00 by ssuchane          #+#    #+#             */
-/*   Updated: 2024/10/09 18:32:06 by ssuchane         ###   ########.fr       */
+/*   Updated: 2024/10/09 18:52:44 by ssuchane         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,8 +34,8 @@ typedef struct s_thread
 	int				tt_eat;
 	int				tt_sleep;
 	int				cycles;
-	fork_left;
-	fort_right;
+	// fork_left;
+	// fort_right;
 }					t_thread;
 
 #endif
