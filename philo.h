@@ -6,7 +6,7 @@
 /*   By: ssuchane <ssuchane@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/08 18:25:00 by ssuchane          #+#    #+#             */
-/*   Updated: 2024/10/09 20:05:48 by ssuchane         ###   ########.fr       */
+/*   Updated: 2024/10/09 21:13:57 by ssuchane         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,7 @@ typedef struct s_thread
 	int				cycles;
 	pthread_mutex_t	*fork_left;
 	pthread_mutex_t	*fork_right;
+	int				last_meal;
 }					t_thread;
 
 #endif

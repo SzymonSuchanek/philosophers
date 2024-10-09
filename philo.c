@@ -6,7 +6,7 @@
 /*   By: ssuchane <ssuchane@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/18 23:00:42 by marvin            #+#    #+#             */
-/*   Updated: 2024/10/09 20:29:52 by ssuchane         ###   ########.fr       */
+/*   Updated: 2024/10/09 21:14:27 by ssuchane         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,11 +107,59 @@ int	ft_atoi(char *s)
 	return (result);
 }
 
-void	*routine(void *arg)
+long	get_time_in_ms(void)
 {
-	return (NULL);
+	struct timeval	tv;
+
+	gettimeofday(&tv, NULL);
+	return ((tv.tv_sec * 1000) + (tv.tv_usec / 1000));
 }
 
+void	ft_usleep(long ms)
+{
+	long	start_time;
+
+	start_time = get_time_in_ms();
+	while ((get_time_in_ms() - start_time) < ms)
+		usleep(100);
+}
+
+void	*routine(void *arg)
+{
+	t_thread	*philo;
+	long		start_time;
+	long		current_time;
+
+	philo = (t_thread *)arg;
+	while (1)
+	{
+		printf("Philosopher %d is thinking.\n", philo->id);
+
+		pthread_mutex_lock(philo->fork_left);
+		printf("Philosopher %d picked up left fork.\n", philo->id);
+		pthread_mutex_lock(philo->fork_right);
+		printf("Philosopher %d picked up right fork.\n", philo->id);
+
+		printf("Philosopher %d is eating.\n", philo->id);
+		start_time = get_time_in_ms();
+		ft_usleep(philo->tt_eat);
+
+		pthread_mutex_unlock(philo->fork_right);
+		pthread_mutex_unlock(philo->fork_left);
+
+		printf("Philosopher %d is sleeping.\n", philo->id);
+
+		current_time = get_time_in_ms();
+		if (current_time - start_time >= philo->tt_die)
+		{
+			printf("Philosopher %d has died.\n", philo->id);
+			break ;
+		}
+		else
+			ft_usleep(philo->tt_sleep);
+	}
+	return (NULL);
+}
 void	init_mutex(t_data *data)
 {
 	int	i;
@@ -162,6 +210,8 @@ void	init_threads(t_data *data)
 	while (i++, i < data->total_threads)
 		if (pthread_create(&data->threads[i], NULL, &routine,
 				data->philo[i]) != 0)
+			// instead of exiting, free the memory that was allocated so far
+			// then exit, or create a wrapper for pthread_create
 			ft_error("Thread creating failed.\n");
 	i = -1;
 	while (i++, i < data->total_threads)
@@ -197,6 +247,7 @@ int	main(int ac, char **av)
 		validate_input(ac, av);
 	init_data(data, av);
 	init_threads(data);
+	destroy_data(data);
 	return (0);
 }
 
