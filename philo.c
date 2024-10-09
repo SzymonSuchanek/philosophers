@@ -6,7 +6,7 @@
 /*   By: ssuchane <ssuchane@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/18 23:00:42 by marvin            #+#    #+#             */
-/*   Updated: 2024/10/09 18:56:25 by ssuchane         ###   ########.fr       */
+/*   Updated: 2024/10/09 20:29:52 by ssuchane         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,10 +107,22 @@ int	ft_atoi(char *s)
 	return (result);
 }
 
-void	*routine()
+void	*routine(void *arg)
 {
-	
-	return (0);
+	return (NULL);
+}
+
+void	init_mutex(t_data *data)
+{
+	int	i;
+
+	data->forks = malloc(sizeof(pthread_mutex_t) * data->total_threads);
+	if (!data->forks)
+		ft_error("Malloc failed\n");
+	i = -1;
+	while (i++, i < data->total_threads)
+		if (pthread_mutex_init(&data->forks[i], NULL) != 0)
+			ft_error("Mutex initialization failed\n");
 }
 
 void	init_data(t_data *data, char **av)
@@ -118,11 +130,12 @@ void	init_data(t_data *data, char **av)
 	int	i;
 
 	data->total_threads = ft_atoi(av[1]);
+	data->threads = malloc(sizeof(pthread_t) * data->total_threads);
 	data->philo = malloc(sizeof(t_thread *) * data->total_threads);
 	if (!data->philo)
 		ft_error("Malloc failed\n");
-	i = 0;
-	while (i < data->total_threads)
+	i = -1;
+	while (i++, i < data->total_threads)
 	{
 		data->philo[i] = malloc(sizeof(t_thread));
 		if (!data->philo[i])
@@ -135,28 +148,40 @@ void	init_data(t_data *data, char **av)
 			data->philo[i]->cycles = ft_atoi(av[5]);
 		else
 			data->philo[i]->cycles = -1;
-		i++;
+		data->philo[i]->fork_left = &data->forks[i];
+		data->philo[i]->fork_right = &data->forks[(i + 1)
+			% data->total_threads];
 	}
 }
 
 void	init_threads(t_data *data)
 {
-	int			i;
+	int	i;
 
-	i = 0;
-	while (i < data->total_threads)
-	{
-		if (pthread_create(&data->threads[i], NULL, &routine, NULL) != 0)
+	i = -1;
+	while (i++, i < data->total_threads)
+		if (pthread_create(&data->threads[i], NULL, &routine,
+				data->philo[i]) != 0)
 			ft_error("Thread creating failed.\n");
-		i++;
-	}
-	i = 0;
-	while (i < data->total_threads)
-	{
+	i = -1;
+	while (i++, i < data->total_threads)
 		if (pthread_join(data->threads[i], NULL) != 0)
 			ft_error("Thread joining failed.\n");
-		i++;
+}
+
+void	destroy_data(t_data *data)
+{
+	int	i;
+
+	i = -1;
+	while (i++, i < data->total_threads)
+	{
+		pthread_mutex_destroy(&data->forks[i]);
+		free(data->philo[i]);
 	}
+	free(data->forks);
+	free(data->philo);
+	free(data->threads);
 }
 
 int	main(int ac, char **av)
@@ -171,16 +196,10 @@ int	main(int ac, char **av)
 	else
 		validate_input(ac, av);
 	init_data(data, av);
+	init_threads(data);
 	return (0);
 }
 
-// create number_of_philosophers threads
-// create number_of_philosophers mutexes
-// wait for all threads to be created
-// start routine
-// if 2 forks ((n && n + 1) arent under mutex,
-//	put a lock on them and let the thread start using them for time_to_eat miliseconds
-// if it's last philosopher make sure to give him possibility to take fork from first philosopher
 // send a message "timestamp_in_ms n has taken a fork"
 // unlock the mutexes that were locked
 // put n thread to sleep for time_to_sleep milisecond,
