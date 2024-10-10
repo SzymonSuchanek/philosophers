@@ -6,7 +6,7 @@
 /*   By: ssuchane <ssuchane@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/18 23:00:42 by marvin            #+#    #+#             */
-/*   Updated: 2024/10/09 21:14:27 by ssuchane         ###   ########.fr       */
+/*   Updated: 2024/10/10 18:28:47 by ssuchane         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -160,6 +160,7 @@ void	*routine(void *arg)
 	}
 	return (NULL);
 }
+
 void	init_mutex(t_data *data)
 {
 	int	i;
@@ -192,7 +193,7 @@ void	init_data(t_data *data, char **av)
 		data->philo[i]->tt_die = ft_atoi(av[2]);
 		data->philo[i]->tt_eat = ft_atoi(av[3]);
 		data->philo[i]->tt_sleep = ft_atoi(av[4]);
-		if (ft_atoi(av[5]))
+		if (av[5])
 			data->philo[i]->cycles = ft_atoi(av[5]);
 		else
 			data->philo[i]->cycles = -1;
@@ -245,6 +246,7 @@ int	main(int ac, char **av)
 		ft_error("Invalid number of arguments.\n");
 	else
 		validate_input(ac, av);
+	init_mutex(data);
 	init_data(data, av);
 	init_threads(data);
 	destroy_data(data);
