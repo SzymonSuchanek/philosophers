@@ -6,7 +6,7 @@
 /*   By: ssuchane <ssuchane@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/18 23:00:42 by marvin            #+#    #+#             */
-/*   Updated: 2024/10/10 18:28:47 by ssuchane         ###   ########.fr       */
+/*   Updated: 2024/10/14 20:10:47 by ssuchane         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,11 +117,16 @@ long	get_time_in_ms(void)
 
 void	ft_usleep(long ms)
 {
-	long	start_time;
+	long	elapsed_time;
 
-	start_time = get_time_in_ms();
-	while ((get_time_in_ms() - start_time) < ms)
-		usleep(100);
+	long start_time = get_time_in_ms(); // Get the current time in milliseconds
+	elapsed_time = 0;
+	while (elapsed_time < ms)
+	{
+		usleep(10);                                 
+			// Sleep for a short time to avoid busy waiting
+		elapsed_time = get_time_in_ms() - start_time; // Update the elapsed time
+	}
 }
 
 void	*routine(void *arg)
@@ -131,32 +136,32 @@ void	*routine(void *arg)
 	long		current_time;
 
 	philo = (t_thread *)arg;
+	start_time = get_time_in_ms();
 	while (1)
 	{
-		printf("Philosopher %d is thinking.\n", philo->id);
-
 		pthread_mutex_lock(philo->fork_left);
-		printf("Philosopher %d picked up left fork.\n", philo->id);
+		printf("%ld %i has taken the left fork\n", get_time_in_ms()
+			- start_time, philo->id);
 		pthread_mutex_lock(philo->fork_right);
-		printf("Philosopher %d picked up right fork.\n", philo->id);
-
-		printf("Philosopher %d is eating.\n", philo->id);
-		start_time = get_time_in_ms();
-		ft_usleep(philo->tt_eat);
-
-		pthread_mutex_unlock(philo->fork_right);
+		printf("%ld %i has taken the right fork\n", get_time_in_ms()
+			- start_time, philo->id);
+		// Now the philosopher has both forks, so they can eat
+		current_time = get_time_in_ms() - start_time;
+		printf("%ld %i is eating\n", current_time, philo->id);
+		philo->last_meal = current_time; // Record the time of last meal
+		ft_usleep(philo->data->tt_eat);        // Simulate eating duration
+		// Release forks after eating
 		pthread_mutex_unlock(philo->fork_left);
-
-		printf("Philosopher %d is sleeping.\n", philo->id);
-
-		current_time = get_time_in_ms();
-		if (current_time - start_time >= philo->tt_die)
-		{
-			printf("Philosopher %d has died.\n", philo->id);
-			break ;
-		}
-		else
-			ft_usleep(philo->tt_sleep);
+		pthread_mutex_unlock(philo->fork_right);
+		// Sleeping phase
+		current_time = get_time_in_ms() - start_time;
+		printf("%ld %i is sleeping\n", current_time, philo->id);
+		ft_usleep(philo->data->tt_sleep); // Simulate sleeping duration
+		// Thinking phase
+		current_time = get_time_in_ms() - start_time;
+		printf("%ld %i is thinking\n", current_time, philo->id);
+		// Small delay to avoid overwhelming the CPU and provide fairness
+		ft_usleep(10); // Small delay before trying to acquire forks again
 	}
 	return (NULL);
 }
@@ -168,10 +173,17 @@ void	init_mutex(t_data *data)
 	data->forks = malloc(sizeof(pthread_mutex_t) * data->total_threads);
 	if (!data->forks)
 		ft_error("Malloc failed\n");
+	data->philo = malloc(sizeof(t_thread) * data->total_threads);
+	if (!data->philo)
+		ft_error("Malloc failed\n");
 	i = -1;
 	while (i++, i < data->total_threads)
+	{
 		if (pthread_mutex_init(&data->forks[i], NULL) != 0)
 			ft_error("Mutex initialization failed\n");
+		data->philo[i].id = i + 1;
+		data->philo[i].data = data;
+	}
 }
 
 void	init_data(t_data *data, char **av)
@@ -179,27 +191,28 @@ void	init_data(t_data *data, char **av)
 	int	i;
 
 	data->total_threads = ft_atoi(av[1]);
-	data->threads = malloc(sizeof(pthread_t) * data->total_threads);
-	data->philo = malloc(sizeof(t_thread *) * data->total_threads);
-	if (!data->philo)
-		ft_error("Malloc failed\n");
+	data->tt_die = ft_atoi(av[2]);
+	data->tt_eat = ft_atoi(av[3]);
+	data->tt_sleep = ft_atoi(av[4]);
 	i = -1;
-	while (i++, i < data->total_threads)
+	while (++i, i < data->total_threads)
 	{
-		data->philo[i] = malloc(sizeof(t_thread));
-		if (!data->philo[i])
-			ft_error("Malloc failed\n");
-		data->philo[i]->id = i + 1;
-		data->philo[i]->tt_die = ft_atoi(av[2]);
-		data->philo[i]->tt_eat = ft_atoi(av[3]);
-		data->philo[i]->tt_sleep = ft_atoi(av[4]);
 		if (av[5])
-			data->philo[i]->cycles = ft_atoi(av[5]);
+			data->philo[i].cycles = ft_atoi(av[5]);
 		else
-			data->philo[i]->cycles = -1;
-		data->philo[i]->fork_left = &data->forks[i];
-		data->philo[i]->fork_right = &data->forks[(i + 1)
-			% data->total_threads];
+			data->philo[i].cycles = -1;
+		if (data->philo[i].id % 2 == 0)
+		{
+			data->philo[i].fork_left = &data->forks[i];
+			data->philo[i].fork_right = &data->forks[(i + 1)
+				% data->total_threads];
+		}
+		else
+		{
+			data->philo[i].fork_right = &data->forks[i];
+			data->philo[i].fork_left = &data->forks[(i + 1)
+				% data->total_threads];
+		}
 	}
 }
 
@@ -209,14 +222,14 @@ void	init_threads(t_data *data)
 
 	i = -1;
 	while (i++, i < data->total_threads)
-		if (pthread_create(&data->threads[i], NULL, &routine,
-				data->philo[i]) != 0)
+		if (pthread_create(&data->philo[i].thread, NULL, &routine,
+				&data->philo[i]) != 0)
 			// instead of exiting, free the memory that was allocated so far
 			// then exit, or create a wrapper for pthread_create
 			ft_error("Thread creating failed.\n");
 	i = -1;
 	while (i++, i < data->total_threads)
-		if (pthread_join(data->threads[i], NULL) != 0)
+		if (pthread_join(data->philo[i].thread, NULL) != 0)
 			ft_error("Thread joining failed.\n");
 }
 
@@ -228,11 +241,9 @@ void	destroy_data(t_data *data)
 	while (i++, i < data->total_threads)
 	{
 		pthread_mutex_destroy(&data->forks[i]);
-		free(data->philo[i]);
 	}
 	free(data->forks);
 	free(data->philo);
-	free(data->threads);
 }
 
 int	main(int ac, char **av)
@@ -246,6 +257,7 @@ int	main(int ac, char **av)
 		ft_error("Invalid number of arguments.\n");
 	else
 		validate_input(ac, av);
+	data->total_threads = ft_atoi(av[1]);
 	init_mutex(data);
 	init_data(data, av);
 	init_threads(data);
