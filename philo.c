@@ -6,7 +6,7 @@
 /*   By: ssuchane <ssuchane@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/18 23:00:42 by marvin            #+#    #+#             */
-/*   Updated: 2024/10/14 20:10:47 by ssuchane         ###   ########.fr       */
+/*   Updated: 2024/10/14 21:46:20 by ssuchane         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,8 +123,8 @@ void	ft_usleep(long ms)
 	elapsed_time = 0;
 	while (elapsed_time < ms)
 	{
-		usleep(10);                                 
-			// Sleep for a short time to avoid busy waiting
+		usleep(10);
+		// Sleep for a short time to avoid busy waiting
 		elapsed_time = get_time_in_ms() - start_time; // Update the elapsed time
 	}
 }
@@ -137,32 +137,35 @@ void	*routine(void *arg)
 
 	philo = (t_thread *)arg;
 	start_time = get_time_in_ms();
-	while (1)
+	while (philo->cycles != 0)
 	{
 		pthread_mutex_lock(philo->fork_left);
+		pthread_mutex_lock(philo->fork_right);
+		pthread_mutex_lock(&philo->data->print_mutex);
 		printf("%ld %i has taken the left fork\n", get_time_in_ms()
 			- start_time, philo->id);
-		pthread_mutex_lock(philo->fork_right);
 		printf("%ld %i has taken the right fork\n", get_time_in_ms()
 			- start_time, philo->id);
-		// Now the philosopher has both forks, so they can eat
-		current_time = get_time_in_ms() - start_time;
-		printf("%ld %i is eating\n", current_time, philo->id);
-		philo->last_meal = current_time; // Record the time of last meal
-		ft_usleep(philo->data->tt_eat);        // Simulate eating duration
-		// Release forks after eating
+		printf("%ld %i is eating\n", get_time_in_ms() - start_time, philo->id);
+		pthread_mutex_unlock(&philo->data->print_mutex);
+		philo->last_meal = get_time_in_ms() - start_time;
+		ft_usleep(philo->data->tt_eat);
 		pthread_mutex_unlock(philo->fork_left);
 		pthread_mutex_unlock(philo->fork_right);
-		// Sleeping phase
 		current_time = get_time_in_ms() - start_time;
+		pthread_mutex_lock(&philo->data->print_mutex);
 		printf("%ld %i is sleeping\n", current_time, philo->id);
-		ft_usleep(philo->data->tt_sleep); // Simulate sleeping duration
-		// Thinking phase
+		pthread_mutex_unlock(&philo->data->print_mutex);
+		ft_usleep(philo->data->tt_sleep);
 		current_time = get_time_in_ms() - start_time;
+		pthread_mutex_lock(&philo->data->print_mutex);
 		printf("%ld %i is thinking\n", current_time, philo->id);
-		// Small delay to avoid overwhelming the CPU and provide fairness
-		ft_usleep(10); // Small delay before trying to acquire forks again
+		pthread_mutex_unlock(&philo->data->print_mutex);
+		philo->cycles--;
+		ft_usleep(10);
 	}
+	pthread_mutex_lock(&philo->data->print_mutex);
+	pthread_mutex_unlock(&philo->data->print_mutex);
 	return (NULL);
 }
 
@@ -176,6 +179,8 @@ void	init_mutex(t_data *data)
 	data->philo = malloc(sizeof(t_thread) * data->total_threads);
 	if (!data->philo)
 		ft_error("Malloc failed\n");
+	if (pthread_mutex_init(&data->print_mutex, NULL) != 0)
+		ft_error("Print mutex initialization failed\n");
 	i = -1;
 	while (i++, i < data->total_threads)
 	{
@@ -197,6 +202,7 @@ void	init_data(t_data *data, char **av)
 	i = -1;
 	while (++i, i < data->total_threads)
 	{
+		data->philo[i].is_dead = 0;
 		if (av[5])
 			data->philo[i].cycles = ft_atoi(av[5]);
 		else
@@ -218,9 +224,12 @@ void	init_data(t_data *data, char **av)
 
 void	init_threads(t_data *data)
 {
-	int	i;
+	int			i;
+	pthread_t	death_check_thread;
 
 	i = -1;
+	pthread_create(&death_check_thread, NULL,
+		(void *(*)(void *))check_for_death, data);
 	while (i++, i < data->total_threads)
 		if (pthread_create(&data->philo[i].thread, NULL, &routine,
 				&data->philo[i]) != 0)
