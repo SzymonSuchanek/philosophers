@@ -6,7 +6,7 @@
 /*   By: ssuchane <ssuchane@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/18 23:00:42 by marvin            #+#    #+#             */
-/*   Updated: 2024/10/15 22:03:01 by ssuchane         ###   ########.fr       */
+/*   Updated: 2024/10/15 22:05:00 by ssuchane         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,31 +57,38 @@ long	get_time_in_ms(void)
 	return ((tv.tv_sec * 1000) + (tv.tv_usec / 1000));
 }
 
+void	print_death_message(t_data *data, long current_time, int philo_id)
+{
+	pthread_mutex_lock(&data->print_mutex);
+	if (!data->is_dead)
+	{
+		data->is_dead = 1;
+		printf("%ld %i died\n", current_time, philo_id);
+	}
+	pthread_mutex_unlock(&data->print_mutex);
+}
+
 void	*monitor(void *arg)
 {
 	t_data	*data;
-	int		i;
 	long	current_time;
+	int		i;
 
 	data = (t_data *)arg;
 	while (!data->is_dead)
 	{
-		i = -1;
-		while (++i < data->total_threads)
+		i = 0;
+		while (i < data->total_threads)
 		{
 			current_time = get_time_in_ms();
-			if ((current_time - data->philo[i].last_meal) > data->tt_die)
+			if (has_philosopher_died(&data->philo[i], current_time,
+					data->tt_die))
 			{
-				pthread_mutex_lock(&data->print_mutex);
-				if (!data->is_dead)
-				{
-					data->is_dead = 1;
-					printf("%ld %i died\n", current_time
-						- data->philo[i].last_meal, data->philo[i].id);
-				}
-				pthread_mutex_unlock(&data->print_mutex);
+				print_death_message(data, current_time
+					- data->philo[i].last_meal, data->philo[i].id);
 				return (NULL);
 			}
+			i++;
 		}
 		usleep(1000);
 	}
