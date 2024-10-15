@@ -6,7 +6,7 @@
 /*   By: ssuchane <ssuchane@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/18 23:00:42 by marvin            #+#    #+#             */
-/*   Updated: 2024/10/14 22:08:46 by ssuchane         ###   ########.fr       */
+/*   Updated: 2024/10/15 21:01:45 by ssuchane         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,6 +115,37 @@ long	get_time_in_ms(void)
 	return ((tv.tv_sec * 1000) + (tv.tv_usec / 1000));
 }
 
+void	*monitor(void *arg)
+{
+	t_data	*data;
+	int		i;
+	long	current_time;
+
+	data = (t_data *)arg;
+	while (!data->is_dead)
+	{
+		i = -1;
+		while (++i < data->total_threads)
+		{
+			current_time = get_time_in_ms();
+			if ((current_time - data->philo[i].last_meal) > data->tt_die)
+			{
+				pthread_mutex_lock(&data->print_mutex);
+				if (!data->is_dead)
+				{
+					data->is_dead = 1;
+					printf("%ld %i died\n", current_time
+						- data->philo[i].last_meal, data->philo[i].id);
+				}
+				pthread_mutex_unlock(&data->print_mutex);
+				return (NULL);
+			}
+		}
+		usleep(1000);
+	}
+	return (NULL);
+}
+
 void	ft_usleep(long ms)
 {
 	long	elapsed_time;
@@ -129,22 +160,7 @@ void	ft_usleep(long ms)
 	}
 }
 
-void	check_death(t_thread *philo)
-{
-	long	current_time;
-
-	current_time = get_time_in_ms();
-	if (current_time - philo->last_meal > philo->data->tt_die)
-	{
-		pthread_mutex_lock(&philo->data->print_mutex);
-		if (!philo->data->is_dead)
-		{
-			philo->data->is_dead = 1;
-			printf("%ld %i has died\n", current_time, philo->id);
-		}
-		pthread_mutex_unlock(&philo->data->print_mutex);
-	}
-}
+// add a case where there is only 1 philosopher
 
 void	*routine(void *arg)
 {
@@ -154,46 +170,38 @@ void	*routine(void *arg)
 	philo = (t_thread *)arg;
 	start_time = get_time_in_ms();
 	philo->last_meal = start_time;
-	while (philo->cycles != 0)
+	while (philo->cycles != 0 && !philo->data->is_dead)
 	{
-		if (philo->data->is_dead)
-			break ;
 		pthread_mutex_lock(philo->fork_left);
 		pthread_mutex_lock(philo->fork_right);
 		pthread_mutex_lock(&philo->data->print_mutex);
-		printf("%ld %i has taken the left fork\n", get_time_in_ms()
-			- start_time, philo->id);
-		printf("%ld %i has taken the right fork\n", get_time_in_ms()
-			- start_time, philo->id);
-		printf("%ld %i is eating\n", get_time_in_ms() - start_time, philo->id);
-		philo->last_meal = get_time_in_ms();
+		if (!philo->data->is_dead)
+		{
+			printf("%ld %i has taken a fork\n", get_time_in_ms() - start_time,
+				philo->id);
+			printf("%ld %i has taken a fork\n", get_time_in_ms() - start_time,
+				philo->id);
+			printf("%ld %i is eating\n", get_time_in_ms() - start_time,
+				philo->id);
+		}
 		pthread_mutex_unlock(&philo->data->print_mutex);
-		check_death(philo);
-		if (philo->data->is_dead)
-			break ;
+		philo->last_meal = get_time_in_ms();
 		ft_usleep(philo->data->tt_eat);
-		check_death(philo);
-		if (philo->data->is_dead)
-			break ;
 		pthread_mutex_unlock(philo->fork_left);
 		pthread_mutex_unlock(philo->fork_right);
 		pthread_mutex_lock(&philo->data->print_mutex);
-		printf("%ld %i is sleeping\n", get_time_in_ms() - start_time,
-			philo->id);
+		if (!philo->data->is_dead)
+			printf("%ld %i is sleeping\n", get_time_in_ms() - start_time,
+				philo->id);
 		pthread_mutex_unlock(&philo->data->print_mutex);
 		ft_usleep(philo->data->tt_sleep);
-		check_death(philo);
-		if (philo->data->is_dead)
-			break ;
 		pthread_mutex_lock(&philo->data->print_mutex);
-		printf("%ld %i is thinking\n", get_time_in_ms() - start_time,
-			philo->id);
+		if (!philo->data->is_dead)
+			printf("%ld %i is thinking\n", get_time_in_ms() - start_time,
+				philo->id);
 		pthread_mutex_unlock(&philo->data->print_mutex);
 		philo->cycles--;
-		ft_usleep(10);
-		check_death(philo);
-		if (philo->data->is_dead)
-			break ;
+		usleep(10);
 	}
 	return (NULL);
 }
@@ -255,7 +263,8 @@ void	init_data(t_data *data, char **av)
 
 void	init_threads(t_data *data)
 {
-	int	i;
+	pthread_t	monitor_thread;
+	int			i;
 
 	i = -1;
 	while (++i, i < data->total_threads)
@@ -267,9 +276,15 @@ void	init_threads(t_data *data)
 			exit(EXIT_FAILURE);
 		}
 	}
+	if (pthread_create(&monitor_thread, NULL, &monitor, data) != 0)
+	{
+		perror("Monitor thread creating failed.");
+		exit(EXIT_FAILURE);
+	}
 	i = -1;
 	while (++i, i < data->total_threads)
 		pthread_join(data->philo[i].thread, NULL);
+	pthread_join(monitor_thread, NULL);
 }
 
 void	destroy_data(t_data *data)
