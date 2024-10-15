@@ -6,7 +6,7 @@
 /*   By: ssuchane <ssuchane@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/18 23:00:42 by marvin            #+#    #+#             */
-/*   Updated: 2024/10/15 22:11:53 by ssuchane         ###   ########.fr       */
+/*   Updated: 2024/10/15 22:12:43 by ssuchane         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -257,7 +257,7 @@ void	init_data(t_data *data, char **av)
 	if (av[5])
 		data->cycles = ft_atoi(av[5]);
 	else
-	data->cycles = -1;
+		data->cycles = -1;
 	i = -1;
 	while (++i, i < data->total_threads)
 		init_philos(&data->philo[i], data, i, data->total_threads);
