@@ -6,7 +6,7 @@
 /*   By: ssuchane <ssuchane@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/18 23:00:42 by marvin            #+#    #+#             */
-/*   Updated: 2024/10/15 22:05:00 by ssuchane         ###   ########.fr       */
+/*   Updated: 2024/10/15 22:11:53 by ssuchane         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,8 @@ int	ft_atoi(char *s)
 
 	i = 0;
 	result = 0;
+	if (!s)
+		return (0);
 	while (s[i])
 	{
 		result = result * 10 + (s[i] - '0');
@@ -66,6 +68,11 @@ void	print_death_message(t_data *data, long current_time, int philo_id)
 		printf("%ld %i died\n", current_time, philo_id);
 	}
 	pthread_mutex_unlock(&data->print_mutex);
+}
+
+int has_philosopher_died(t_thread *philo, long current_time, long tt_die)
+{
+	return (current_time - philo->last_meal > tt_die);
 }
 
 void	*monitor(void *arg)
@@ -192,26 +199,10 @@ void	*routine(void *arg)
 	return (NULL);
 }
 
-void	init_mutex(t_data *data)
+void	init_mutex_or_exit(pthread_mutex_t *mutex)
 {
-	int	i;
-
-	data->forks = malloc(sizeof(pthread_mutex_t) * data->total_threads);
-	if (!data->forks)
-		ft_error("Malloc failed\n");
-	data->philo = malloc(sizeof(t_thread) * data->total_threads);
-	if (!data->philo)
-		ft_error("Malloc failed\n");
-	if (pthread_mutex_init(&data->print_mutex, NULL) != 0)
-		ft_error("Print mutex initialization failed\n");
-	i = -1;
-	while (i++, i < data->total_threads)
-	{
-		if (pthread_mutex_init(&data->forks[i], NULL) != 0)
-			ft_error("Mutex initialization failed\n");
-		data->philo[i].id = i + 1;
-		data->philo[i].data = data;
-	}
+	if (pthread_mutex_init(mutex, NULL) != 0)
+		ft_error("Mutex initialization failed\n");
 }
 
 void	init_philos(t_thread *philo, t_data *data, int id, int total_threads)
@@ -258,13 +249,17 @@ void	init_data(t_data *data, char **av)
 	int	cycles;
 	int	i;
 
-	data->total_threads = atoi(av[1]);
-	data->tt_die = atoi(av[2]);
-	data->tt_eat = atoi(av[3]);
-	data->tt_sleep = atoi(av[4]);
+	data->total_threads = ft_atoi(av[1]);
+	data->tt_die = ft_atoi(av[2]);
+	data->tt_eat = ft_atoi(av[3]);
+	data->tt_sleep = ft_atoi(av[4]);
 	data->is_dead = 0;
+	if (av[5])
+		data->cycles = ft_atoi(av[5]);
+	else
+	data->cycles = -1;
 	i = -1;
-	while (++1, i < data->total_threads)
+	while (++i, i < data->total_threads)
 		init_philos(&data->philo[i], data, i, data->total_threads);
 }
 
