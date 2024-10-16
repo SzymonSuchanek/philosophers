@@ -6,7 +6,7 @@
 /*   By: ssuchane <ssuchane@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/18 23:00:42 by marvin            #+#    #+#             */
-/*   Updated: 2024/10/15 22:12:43 by ssuchane         ###   ########.fr       */
+/*   Updated: 2024/10/16 19:19:21 by ssuchane         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -265,7 +265,6 @@ void	init_data(t_data *data, char **av)
 
 void	init_threads(t_data *data)
 {
-	pthread_t	monitor_thread;
 	int			i;
 
 	i = -1;
@@ -278,7 +277,7 @@ void	init_threads(t_data *data)
 			exit(EXIT_FAILURE);
 		}
 	}
-	if (pthread_create(&monitor_thread, NULL, &monitor, data) != 0)
+	if (pthread_create(&data->monitor_thread, NULL, &monitor, data) != 0)
 	{
 		perror("Monitor thread creating failed.");
 		exit(EXIT_FAILURE);
@@ -286,7 +285,7 @@ void	init_threads(t_data *data)
 	i = -1;
 	while (++i, i < data->total_threads)
 		pthread_join(data->philo[i].thread, NULL);
-	pthread_join(monitor_thread, NULL);
+	pthread_join(data->monitor_thread, NULL);
 }
 
 void	destroy_data(t_data *data)
@@ -298,13 +297,16 @@ void	destroy_data(t_data *data)
 	{
 		pthread_mutex_destroy(&data->forks[i]);
 	}
+	pthread_mutex_destroy(&data->print_mutex);
 	free(data->forks);
 	free(data->philo);
+	free(data);
 }
 
 int	main(int ac, char **av)
 {
-	t_data	*data;
+	t_data		*data;
+	pthread_t	*monitor_thread;
 
 	data = malloc(sizeof(t_data));
 	if (!data)

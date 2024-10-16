@@ -6,7 +6,7 @@
 /*   By: ssuchane <ssuchane@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/08 18:25:00 by ssuchane          #+#    #+#             */
-/*   Updated: 2024/10/15 22:08:14 by ssuchane         ###   ########.fr       */
+/*   Updated: 2024/10/16 19:15:23 by ssuchane         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@ typedef struct s_data
 	int				tt_die;
 	int				tt_eat;
 	int				tt_sleep;
+	pthread_t		monitor_thread;
 	pthread_mutex_t	print_mutex;
 	int				is_dead;
 	int				cycles;
