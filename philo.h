@@ -6,7 +6,7 @@
 /*   By: ssuchane <ssuchane@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/08 18:25:00 by ssuchane          #+#    #+#             */
-/*   Updated: 2024/10/16 19:15:23 by ssuchane         ###   ########.fr       */
+/*   Updated: 2024/10/16 19:35:23 by ssuchane         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,5 +45,36 @@ typedef struct s_thread
 	struct s_data	*data;
 	int				is_dead;
 }					t_thread;
+
+// init.c
+void				init_mutex_or_exit(pthread_mutex_t *mutex);
+void				init_philos(t_thread *philo, t_data *data, int id,
+						int total_threads);
+void				init_mutex(t_data *data);
+void				init_data(t_data *data, char **av);
+void				init_threads(t_data *data);
+
+// monitor.c
+void				print_death_message(t_data *data, long current_time,
+						int philo_id);
+int					has_philosopher_died(t_thread *philo, long current_time,
+						long tt_die);
+void				*monitor(void *arg);
+
+// routine.c
+void				handle_single_philosopher(t_thread *philo, long start_time);
+void				take_forks(t_thread *philo, long start_time);
+void				eat(t_thread *philo, long start_time);
+void				sleep_and_think(t_thread *philo, long start_time);
+void				*routine(void *arg);
+
+// utils.c
+long				get_time_in_ms(void);
+void				ft_usleep(long ms);
+
+// validate_input.c
+void				ft_error(char *message);
+void				validate_input(int ac, char **av);
+int					ft_atoi(char *s);
 
 #endif
