@@ -6,7 +6,7 @@
 /*   By: ssuchane <ssuchane@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/08 18:25:00 by ssuchane          #+#    #+#             */
-/*   Updated: 2024/10/16 19:35:23 by ssuchane         ###   ########.fr       */
+/*   Updated: 2024/10/17 22:23:17 by ssuchane         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,9 @@ typedef struct s_thread
 	long			last_meal;
 	struct s_data	*data;
 	int				is_dead;
+	pthread_mutex_t	is_dead_mutex;
+	pthread_mutex_t	last_meal_mutex;
+	pthread_mutex_t	cycles_mutex;
 }					t_thread;
 
 // init.c
@@ -59,18 +62,27 @@ void				print_death_message(t_data *data, long current_time,
 						int philo_id);
 int					has_philosopher_died(t_thread *philo, long current_time,
 						long tt_die);
-void				*monitor(void *arg);
+void				monitor(t_thread *philo, long current_time, long tt_die);
+void				*monitor_routine(void *arg);
+
+// protect_data.c
+int					get_cycles(t_thread *philo);
+void				update_cycles(t_thread *philo);
+int					is_philo_dead(t_data *data);
+void				set_philo_dead(t_data *data);
 
 // routine.c
 void				handle_single_philosopher(t_thread *philo, long start_time);
 void				take_forks(t_thread *philo, long start_time);
 void				eat(t_thread *philo, long start_time);
 void				sleep_and_think(t_thread *philo, long start_time);
-void				*routine(void *arg);
+void				*monitor_routine(void *arg);
 
 // utils.c
 long				get_time_in_ms(void);
 void				ft_usleep(long ms);
+long				get_last_meal(t_thread *philo);
+void				update_last_meal(t_thread *philo, long time);
 
 // validate_input.c
 void				ft_error(char *message);

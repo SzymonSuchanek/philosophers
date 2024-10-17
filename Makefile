@@ -6,7 +6,7 @@
 #    By: ssuchane <ssuchane@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/07/03 15:54:07 by ssuchane          #+#    #+#              #
-#    Updated: 2024/10/16 19:48:32 by ssuchane         ###   ########.fr        #
+#    Updated: 2024/10/17 21:22:02 by ssuchane         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -19,6 +19,7 @@ RM = rm -f
 SRCS =	init.c \
 		monitor.c \
 		philo.c \
+		protect_data.c \
 		routine.c \
 		utils.c \
 		validate_input.c
@@ -28,6 +29,7 @@ OBJS = $(SRCS:.c=.o)
 all: $(NAME)
 
 $(NAME): $(OBJS)
+	rm -f philo
 	$(CC) $(FLAGS) $(OBJS) -o $@
 	$(MAKE) clean
 

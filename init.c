@@ -6,7 +6,7 @@
 /*   By: ssuchane <ssuchane@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/16 19:23:56 by ssuchane          #+#    #+#             */
-/*   Updated: 2024/10/16 19:25:59 by ssuchane         ###   ########.fr       */
+/*   Updated: 2024/10/17 22:23:53 by ssuchane         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,12 @@ void	init_mutex(t_data *data)
 	init_mutex_or_exit(&data->print_mutex);
 	i = -1;
 	while (++i, i < data->total_threads)
+	{
+		init_mutex_or_exit(&data->philo[i].last_meal_mutex);
+		init_mutex_or_exit(&data->philo[i].cycles_mutex);
+		init_mutex_or_exit(&data->philo[i].is_dead_mutex);
 		init_mutex_or_exit(&data->forks[i]);
+	}
 }
 
 void	init_data(t_data *data, char **av)
@@ -78,19 +83,20 @@ void	init_data(t_data *data, char **av)
 
 void	init_threads(t_data *data)
 {
-	int			i;
+	int	i;
 
 	i = -1;
 	while (++i, i < data->total_threads)
 	{
-		if (pthread_create(&data->philo[i].thread, NULL, &routine,
+		if (pthread_create(&data->philo[i].thread, NULL, &monitor_routine,
 				&data->philo[i]) != 0)
 		{
 			perror("Thread creating failed.");
 			exit(EXIT_FAILURE);
 		}
 	}
-	if (pthread_create(&data->monitor_thread, NULL, &monitor, data) != 0)
+	if (pthread_create(&data->monitor_thread, NULL, &monitor_routine,
+			data) != 0)
 	{
 		perror("Monitor thread creating failed.");
 		exit(EXIT_FAILURE);
