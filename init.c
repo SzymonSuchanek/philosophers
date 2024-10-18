@@ -6,7 +6,7 @@
 /*   By: ssuchane <ssuchane@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/16 19:23:56 by ssuchane          #+#    #+#             */
-/*   Updated: 2024/10/18 20:01:47 by ssuchane         ###   ########.fr       */
+/*   Updated: 2024/10/18 20:33:54 by ssuchane         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,6 @@ void	init_philos(t_thread *philo, t_data *data, int id, int total_threads)
 		philo->fork_left = &data->forks[(id + 1) % total_threads];
 	}
 }
-
 
 void	init_data(t_data *data, char **av)
 {
