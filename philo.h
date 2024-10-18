@@ -6,7 +6,7 @@
 /*   By: ssuchane <ssuchane@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/08 18:25:00 by ssuchane          #+#    #+#             */
-/*   Updated: 2024/10/17 22:23:17 by ssuchane         ###   ########.fr       */
+/*   Updated: 2024/10/18 20:13:26 by ssuchane         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ typedef struct s_data
 	int				tt_sleep;
 	pthread_t		monitor_thread;
 	pthread_mutex_t	print_mutex;
+	pthread_mutex_t	is_dead_mutex;
 	int				is_dead;
 	int				cycles;
 }					t_data;
@@ -76,7 +77,7 @@ void				handle_single_philosopher(t_thread *philo, long start_time);
 void				take_forks(t_thread *philo, long start_time);
 void				eat(t_thread *philo, long start_time);
 void				sleep_and_think(t_thread *philo, long start_time);
-void				*monitor_routine(void *arg);
+void				*routine(void *arg);
 
 // utils.c
 long				get_time_in_ms(void);

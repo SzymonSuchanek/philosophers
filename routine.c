@@ -6,7 +6,7 @@
 /*   By: ssuchane <ssuchane@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/16 19:26:19 by ssuchane          #+#    #+#             */
-/*   Updated: 2024/10/17 22:25:35 by ssuchane         ###   ########.fr       */
+/*   Updated: 2024/10/18 20:26:41 by ssuchane         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,25 +67,21 @@ void	eat(t_thread *philo, long start_time)
 
 void	sleep_and_think(t_thread *philo, long start_time)
 {
-	pthread_mutex_lock(&philo->is_dead_mutex);
-	if (!philo->data->is_dead)
+	if (!is_philo_dead(philo->data))
 	{
 		pthread_mutex_lock(&philo->data->print_mutex);
 		printf("%ld %i is sleeping\n", get_time_in_ms() - start_time,
 			philo->id);
 		pthread_mutex_unlock(&philo->data->print_mutex);
 	}
-	pthread_mutex_unlock(&philo->is_dead_mutex);
 	ft_usleep(philo->data->tt_sleep);
-	pthread_mutex_lock(&philo->is_dead_mutex);
-	if (!philo->data->is_dead)
+	if (!is_philo_dead(philo->data))
 	{
 		pthread_mutex_lock(&philo->data->print_mutex);
 		printf("%ld %i is thinking\n", get_time_in_ms() - start_time,
 			philo->id);
 		pthread_mutex_unlock(&philo->data->print_mutex);
 	}
-	pthread_mutex_unlock(&philo->is_dead_mutex);
 }
 
 void	*routine(void *arg)
@@ -106,7 +102,6 @@ void	*routine(void *arg)
 		take_forks(philo, start_time);
 		eat(philo, start_time);
 		sleep_and_think(philo, start_time);
-		update_cycles(philo);
 		usleep(10);
 	}
 	return (NULL);
