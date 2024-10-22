@@ -6,17 +6,11 @@
 /*   By: ssuchane <ssuchane@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/16 19:23:56 by ssuchane          #+#    #+#             */
-/*   Updated: 2024/10/18 20:33:54 by ssuchane         ###   ########.fr       */
+/*   Updated: 2024/10/22 20:12:12 by ssuchane         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
-
-void	init_mutex_or_exit(pthread_mutex_t *mutex)
-{
-	if (pthread_mutex_init(mutex, NULL) != 0)
-		ft_error("Mutex initialization failed\n");
-}
 
 void	init_mutex(t_data *data)
 {
@@ -81,28 +75,24 @@ void	init_data(t_data *data, char **av)
 		init_philos(&data->philo[i], data, i, data->total_threads);
 }
 
-void	init_threads(t_data *data)
+int	init_threads(t_data *data)
 {
 	int	i;
+	int	ret;
 
 	i = -1;
-	while (++i, i < data->total_threads)
+	while (++i < data->total_threads)
 	{
-		if (pthread_create(&data->philo[i].thread, NULL, &routine,
-				&data->philo[i]) != 0)
-		{
-			perror("Thread creating failed.");
-			exit(EXIT_FAILURE);
-		}
+		ret = create_thread(&data->philo[i].thread, &routine, &data->philo[i]);
+		if (ret != 0)
+			return (1);
 	}
-	if (pthread_create(&data->monitor_thread, NULL, &monitor_routine,
-			data) != 0)
-	{
-		perror("Monitor thread creating failed.");
-		exit(EXIT_FAILURE);
-	}
+	ret = create_thread(&data->monitor_thread, &monitor_routine, data);
+	if (ret != 0)
+		return (1);
 	i = -1;
-	while (++i, i < data->total_threads)
+	while (++i < data->total_threads)
 		pthread_join(data->philo[i].thread, NULL);
 	pthread_join(data->monitor_thread, NULL);
+	return (0);
 }

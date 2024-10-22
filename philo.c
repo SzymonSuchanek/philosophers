@@ -6,11 +6,24 @@
 /*   By: ssuchane <ssuchane@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/18 23:00:42 by marvin            #+#    #+#             */
-/*   Updated: 2024/10/18 20:30:42 by ssuchane         ###   ########.fr       */
+/*   Updated: 2024/10/22 20:13:55 by ssuchane         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
+
+int	create_thread(pthread_t *thread, void *(*start_routine)(void *), void *arg)
+{
+	if (pthread_create(thread, NULL, start_routine, arg) != 0)
+		ft_error("Thread creation failed");
+	return (0);
+}
+
+void	init_mutex_or_exit(pthread_mutex_t *mutex)
+{
+	if (pthread_mutex_init(mutex, NULL) != 0)
+		ft_error("Mutex initialization failed\n");
+}
 
 void	destroy_data(t_data *data)
 {

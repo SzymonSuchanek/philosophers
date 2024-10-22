@@ -6,7 +6,7 @@
 /*   By: ssuchane <ssuchane@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/08 18:25:00 by ssuchane          #+#    #+#             */
-/*   Updated: 2024/10/18 20:13:26 by ssuchane         ###   ########.fr       */
+/*   Updated: 2024/10/22 20:14:31 by ssuchane         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,7 @@ void				init_philos(t_thread *philo, t_data *data, int id,
 						int total_threads);
 void				init_mutex(t_data *data);
 void				init_data(t_data *data, char **av);
-void				init_threads(t_data *data);
+int					init_threads(t_data *data);
 
 // monitor.c
 void				print_death_message(t_data *data, long current_time,
@@ -65,6 +65,11 @@ int					has_philosopher_died(t_thread *philo, long current_time,
 						long tt_die);
 void				monitor(t_thread *philo, long current_time, long tt_die);
 void				*monitor_routine(void *arg);
+
+// philo.c
+int					create_thread(pthread_t *thread,
+						void *(*start_routine)(void *), void *arg);
+void				init_mutex_or_exit(pthread_mutex_t *mutex);
 
 // protect_data.c
 int					get_cycles(t_thread *philo);
@@ -86,7 +91,7 @@ long				get_last_meal(t_thread *philo);
 void				update_last_meal(t_thread *philo, long time);
 
 // validate_input.c
-void				ft_error(char *message);
+int					ft_error(char *message);
 void				validate_input(int ac, char **av);
 int					ft_atoi(char *s);
 

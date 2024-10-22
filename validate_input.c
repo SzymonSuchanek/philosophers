@@ -6,16 +6,16 @@
 /*   By: ssuchane <ssuchane@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/16 19:29:00 by ssuchane          #+#    #+#             */
-/*   Updated: 2024/10/16 19:29:09 by ssuchane         ###   ########.fr       */
+/*   Updated: 2024/10/22 20:07:08 by ssuchane         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-void	ft_error(char *message)
+int	ft_error(char *message)
 {
 	printf("%s", message);
-	exit(1);
+	return (1);
 }
 
 void	validate_input(int ac, char **av)

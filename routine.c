@@ -6,7 +6,7 @@
 /*   By: ssuchane <ssuchane@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/16 19:26:19 by ssuchane          #+#    #+#             */
-/*   Updated: 2024/10/18 20:26:41 by ssuchane         ###   ########.fr       */
+/*   Updated: 2024/10/22 20:23:26 by ssuchane         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,7 +102,6 @@ void	*routine(void *arg)
 		take_forks(philo, start_time);
 		eat(philo, start_time);
 		sleep_and_think(philo, start_time);
-		usleep(10);
 	}
 	return (NULL);
 }
