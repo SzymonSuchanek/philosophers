@@ -6,7 +6,7 @@
 /*   By: ssuchane <ssuchane@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/16 19:26:19 by ssuchane          #+#    #+#             */
-/*   Updated: 2024/10/22 20:23:26 by ssuchane         ###   ########.fr       */
+/*   Updated: 2024/10/22 21:26:54 by ssuchane         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,6 +91,9 @@ void	*routine(void *arg)
 
 	philo = (t_thread *)arg;
 	start_time = get_time_in_ms();
+	pthread_mutex_lock(&philo->data->start_routine_mutex);
+	philo->data->start_routine = start_time;
+	pthread_mutex_unlock(&philo->data->start_routine_mutex);
 	update_last_meal(philo, start_time);
 	if (philo->data->total_threads == 1)
 	{

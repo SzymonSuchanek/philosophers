@@ -6,7 +6,7 @@
 /*   By: ssuchane <ssuchane@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/16 19:23:56 by ssuchane          #+#    #+#             */
-/*   Updated: 2024/10/22 20:12:12 by ssuchane         ###   ########.fr       */
+/*   Updated: 2024/10/22 21:27:16 by ssuchane         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ void	init_mutex(t_data *data)
 	if (!data->philo)
 		ft_error("Malloc failed for philosophers\n");
 	init_mutex_or_exit(&data->print_mutex);
+	init_mutex_or_exit(&data->start_routine_mutex);
 	i = -1;
 	while (++i, i < data->total_threads)
 	{

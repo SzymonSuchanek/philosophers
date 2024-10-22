@@ -6,7 +6,7 @@
 /*   By: ssuchane <ssuchane@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/16 19:26:56 by ssuchane          #+#    #+#             */
-/*   Updated: 2024/10/17 21:58:31 by ssuchane         ###   ########.fr       */
+/*   Updated: 2024/10/22 21:27:00 by ssuchane         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,26 +39,39 @@ void	*monitor_routine(void *arg)
 	int		i;
 
 	data = (t_data *)arg;
-	current_time = get_time_in_ms();
 	tt_die = data->tt_die;
 	i = 0;
-	while (i < data->total_threads)
+	while (1)
 	{
+		current_time = get_time_in_ms();
 		monitor(&data->philo[i], current_time, tt_die);
+		if (is_philo_dead(data))
+			return (NULL);
 		i++;
+		if (i >= data->total_threads)
+			i = 0;
+		usleep(1000);
 	}
 	return (NULL);
 }
 
 void	monitor(t_thread *philo, long current_time, long tt_die)
 {
-	if (has_philosopher_died(philo, current_time, tt_die))
+	long	last_meal_time;
+	long	elapsed_time;
+
+	pthread_mutex_lock(&philo->last_meal_mutex);
+	last_meal_time = philo->last_meal;
+	pthread_mutex_unlock(&philo->last_meal_mutex);
+	if (current_time - last_meal_time > tt_die)
 	{
 		pthread_mutex_lock(&philo->data->print_mutex);
 		if (!is_philo_dead(philo->data))
 		{
-			printf("%ld %i has died\n", get_time_in_ms() - current_time,
-				philo->id);
+			pthread_mutex_lock(&philo->data->start_routine_mutex);
+			elapsed_time = get_time_in_ms() - philo->data->start_routine;
+			pthread_mutex_unlock(&philo->data->start_routine_mutex);
+			printf("%ld %i has died\n", elapsed_time, philo->id);
 			set_philo_dead(philo->data);
 		}
 		pthread_mutex_unlock(&philo->data->print_mutex);
