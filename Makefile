@@ -6,7 +6,7 @@
 #    By: ssuchane <ssuchane@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/07/03 15:54:07 by ssuchane          #+#    #+#              #
-#    Updated: 2024/10/22 20:39:08 by ssuchane         ###   ########.fr        #
+#    Updated: 2024/10/23 21:32:40 by ssuchane         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -31,7 +31,6 @@ all: $(NAME)
 $(NAME): $(OBJS)
 	rm -f philo
 	$(CC) $(FLAGS) $(OBJS) -o $@
-	$(MAKE) clean
 
 clean:
 	$(RM) $(OBJS)

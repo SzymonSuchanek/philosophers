@@ -6,7 +6,7 @@
 /*   By: ssuchane <ssuchane@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/08 18:25:00 by ssuchane          #+#    #+#             */
-/*   Updated: 2024/10/23 20:16:23 by ssuchane         ###   ########.fr       */
+/*   Updated: 2024/10/23 21:24:05 by ssuchane         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,7 +95,7 @@ void				update_last_meal(t_thread *philo, long time);
 
 // validate_input.c
 int					ft_error(char *message);
-void				validate_input(int ac, char **av);
+int					validate_input(int ac, char **av);
 int					ft_atoi(char *s);
 
 #endif

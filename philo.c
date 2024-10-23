@@ -6,7 +6,7 @@
 /*   By: ssuchane <ssuchane@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/18 23:00:42 by marvin            #+#    #+#             */
-/*   Updated: 2024/10/22 20:13:55 by ssuchane         ###   ########.fr       */
+/*   Updated: 2024/10/23 21:23:44 by ssuchane         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,8 +54,8 @@ int	main(int ac, char **av)
 		ft_error("Malloc failed\n");
 	if (!(ac >= 5 && ac <= 6))
 		ft_error("Invalid number of arguments.\n");
-	else
-		validate_input(ac, av);
+	else if (validate_input(ac, av))
+		return (0);
 	data->total_threads = ft_atoi(av[1]);
 	init_mutex(data);
 	init_data(data, av);
