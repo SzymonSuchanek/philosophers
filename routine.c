@@ -6,7 +6,7 @@
 /*   By: ssuchane <ssuchane@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/16 19:26:19 by ssuchane          #+#    #+#             */
-/*   Updated: 2024/10/22 21:26:54 by ssuchane         ###   ########.fr       */
+/*   Updated: 2024/10/23 20:04:42 by ssuchane         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,6 +102,8 @@ void	*routine(void *arg)
 	}
 	while (get_cycles(philo) != 0 && !is_philo_dead(philo->data))
 	{
+		if (philo->id % 2)
+			ft_usleep(1);
 		take_forks(philo, start_time);
 		eat(philo, start_time);
 		sleep_and_think(philo, start_time);

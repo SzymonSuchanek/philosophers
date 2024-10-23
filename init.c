@@ -6,7 +6,7 @@
 /*   By: ssuchane <ssuchane@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/16 19:23:56 by ssuchane          #+#    #+#             */
-/*   Updated: 2024/10/22 21:27:16 by ssuchane         ###   ########.fr       */
+/*   Updated: 2024/10/23 20:21:56 by ssuchane         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ void	init_philos(t_thread *philo, t_data *data, int id, int total_threads)
 {
 	philo->id = id + 1;
 	philo->data = data;
-	philo->last_meal = get_time_in_ms();
+	philo->last_meal = data->start;
 	philo->cycles = -1;
 	if (data->total_threads > 0)
 	{
@@ -61,7 +61,9 @@ void	init_data(t_data *data, char **av)
 {
 	int	cycles;
 	int	i;
+	int	start;
 
+	data->start = get_time_in_ms();
 	data->total_threads = ft_atoi(av[1]);
 	data->tt_die = ft_atoi(av[2]);
 	data->tt_eat = ft_atoi(av[3]);

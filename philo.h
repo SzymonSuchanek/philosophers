@@ -6,7 +6,7 @@
 /*   By: ssuchane <ssuchane@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/08 18:25:00 by ssuchane          #+#    #+#             */
-/*   Updated: 2024/10/22 21:26:33 by ssuchane         ###   ########.fr       */
+/*   Updated: 2024/10/23 20:16:23 by ssuchane         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,7 @@ typedef struct s_data
 	int				tt_eat;
 	int				tt_sleep;
 	long			start_routine;
+	int				start;
 	pthread_mutex_t	start_routine_mutex;
 	pthread_t		monitor_thread;
 	pthread_mutex_t	print_mutex;
