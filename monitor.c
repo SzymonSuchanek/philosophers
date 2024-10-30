@@ -6,7 +6,7 @@
 /*   By: ssuchane <ssuchane@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/16 19:26:56 by ssuchane          #+#    #+#             */
-/*   Updated: 2024/10/23 20:01:32 by ssuchane         ###   ########.fr       */
+/*   Updated: 2024/10/30 20:22:11 by ssuchane         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,7 @@ void	*monitor_routine(void *arg)
 	data = (t_data *)arg;
 	tt_die = data->tt_die;
 	i = 0;
+	ft_usleep(50);
 	while (1)
 	{
 		current_time = get_time_in_ms();
@@ -50,7 +51,7 @@ void	*monitor_routine(void *arg)
 		i++;
 		if (i >= data->total_threads)
 			i = 0;
-		usleep(1000);
+		ft_usleep(3);
 	}
 	return (NULL);
 }
@@ -71,7 +72,7 @@ void	monitor(t_thread *philo, long current_time, long tt_die)
 			pthread_mutex_lock(&philo->data->start_routine_mutex);
 			elapsed_time = get_time_in_ms() - philo->data->start_routine;
 			pthread_mutex_unlock(&philo->data->start_routine_mutex);
-			printf("%ld %i has died\n", elapsed_time, philo->id);
+			printf("%ld %i died\n", elapsed_time, philo->id);
 			set_philo_dead(philo->data);
 		}
 		pthread_mutex_unlock(&philo->data->print_mutex);

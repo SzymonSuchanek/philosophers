@@ -6,7 +6,7 @@
 /*   By: ssuchane <ssuchane@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/16 19:23:56 by ssuchane          #+#    #+#             */
-/*   Updated: 2024/10/23 20:21:56 by ssuchane         ###   ########.fr       */
+/*   Updated: 2024/10/30 20:17:40 by ssuchane         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,12 +90,14 @@ int	init_threads(t_data *data)
 		if (ret != 0)
 			return (1);
 	}
-	ret = create_thread(&data->monitor_thread, &monitor_routine, data);
+	if (data->total_threads > 1)
+		ret = create_thread(&data->monitor_thread, &monitor_routine, data);
 	if (ret != 0)
 		return (1);
 	i = -1;
 	while (++i < data->total_threads)
 		pthread_join(data->philo[i].thread, NULL);
-	pthread_join(data->monitor_thread, NULL);
+	if (ret)
+		pthread_join(data->monitor_thread, NULL);
 	return (0);
 }

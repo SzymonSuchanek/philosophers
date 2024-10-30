@@ -6,7 +6,7 @@
 /*   By: ssuchane <ssuchane@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/16 19:26:19 by ssuchane          #+#    #+#             */
-/*   Updated: 2024/10/23 20:04:42 by ssuchane         ###   ########.fr       */
+/*   Updated: 2024/10/30 20:18:31 by ssuchane         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,25 +14,10 @@
 
 void	handle_single_philosopher(t_thread *philo, long start_time)
 {
-	pthread_mutex_lock(philo->fork_left);
-	pthread_mutex_lock(&philo->data->print_mutex);
 	printf("%ld %i has taken a fork\n", get_time_in_ms() - start_time,
 		philo->id);
-	pthread_mutex_unlock(&philo->data->print_mutex);
-	if (is_philo_dead(philo->data))
-	{
-		pthread_mutex_unlock(philo->fork_left);
-		return ;
-	}
 	ft_usleep(philo->data->tt_die);
-	pthread_mutex_lock(&philo->data->print_mutex);
-	if (!is_philo_dead(philo->data))
-	{
-		printf("%ld %i has died\n", get_time_in_ms() - start_time, philo->id);
-		set_philo_dead(philo->data);
-	}
-	pthread_mutex_unlock(&philo->data->print_mutex);
-	pthread_mutex_unlock(philo->fork_left);
+		printf("%ld %i died\n", get_time_in_ms() - start_time, philo->id);
 }
 
 void	take_forks(t_thread *philo, long start_time)
