@@ -6,7 +6,7 @@
 /*   By: ssuchane <ssuchane@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/08 18:25:00 by ssuchane          #+#    #+#             */
-/*   Updated: 2024/10/23 21:24:05 by ssuchane         ###   ########.fr       */
+/*   Updated: 2024/11/03 18:20:34 by ssuchane         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,8 @@ typedef struct s_data
 	pthread_t		monitor_thread;
 	pthread_mutex_t	print_mutex;
 	pthread_mutex_t	is_dead_mutex;
+	int				completed_threads;
+	pthread_mutex_t	completed_mutex;
 	int				is_dead;
 	int				cycles;
 }					t_data;
@@ -51,22 +53,25 @@ typedef struct s_thread
 	pthread_mutex_t	is_dead_mutex;
 	pthread_mutex_t	last_meal_mutex;
 	pthread_mutex_t	cycles_mutex;
+	int				completed;
 }					t_thread;
 
 // init.c
-void				init_mutex_or_exit(pthread_mutex_t *mutex);
 void				init_philos(t_thread *philo, t_data *data, int id,
 						int total_threads);
 void				init_mutex(t_data *data);
 void				init_data(t_data *data, char **av);
+int					create_and_join_philosopher_threads(t_data *data);
 int					init_threads(t_data *data);
 
-// monitor.c
-void				print_death_message(t_data *data, long current_time,
-						int philo_id);
+// monitor_utils.c
 int					has_philosopher_died(t_thread *philo, long current_time,
 						long tt_die);
-void				monitor(t_thread *philo, long current_time, long tt_die);
+void				print_death_message(t_data *data, long current_time,
+						int philo_id);
+void				check_if_starved(t_thread *philo, long current_time);
+
+// monitor.c
 void				*monitor_routine(void *arg);
 
 // philo.c

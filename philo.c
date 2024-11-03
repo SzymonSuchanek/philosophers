@@ -6,7 +6,7 @@
 /*   By: ssuchane <ssuchane@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/18 23:00:42 by marvin            #+#    #+#             */
-/*   Updated: 2024/10/23 21:23:44 by ssuchane         ###   ########.fr       */
+/*   Updated: 2024/11/03 18:01:28 by ssuchane         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,8 +37,10 @@ void	destroy_data(t_data *data)
 		pthread_mutex_destroy(&data->philo[i].cycles_mutex);
 		pthread_mutex_destroy(&data->philo[i].is_dead_mutex);
 	}
+	pthread_mutex_destroy(&data->start_routine_mutex);
 	pthread_mutex_destroy(&data->print_mutex);
 	pthread_mutex_destroy(&data->is_dead_mutex);
+	pthread_mutex_destroy(&data->completed_mutex);
 	free(data->forks);
 	free(data->philo);
 	free(data);

@@ -6,75 +6,72 @@
 /*   By: ssuchane <ssuchane@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/16 19:26:56 by ssuchane          #+#    #+#             */
-/*   Updated: 2024/10/30 20:22:11 by ssuchane         ###   ########.fr       */
+/*   Updated: 2024/11/03 18:31:24 by ssuchane         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-void	print_death_message(t_data *data, long current_time, int philo_id)
+int	should_monitor(t_thread *philo, long tt_die)
 {
-	pthread_mutex_lock(&data->print_mutex);
-	if (!is_philo_dead(data))
-	{
-		set_philo_dead(data);
-		printf("%ld %i died\n", current_time, philo_id);
-	}
-	pthread_mutex_unlock(&data->print_mutex);
+	int	should_monitor;
+
+	pthread_mutex_lock(&philo->cycles_mutex);
+	should_monitor = !philo->completed;
+	pthread_mutex_unlock(&philo->cycles_mutex);
+	return (should_monitor);
 }
 
-int	has_philosopher_died(t_thread *philo, long current_time, long tt_die)
+int	all_philosophers_done(t_data *data)
 {
-	long	last_meal;
+	int	all_done;
 
-	last_meal = get_last_meal(philo);
-	return (current_time - last_meal > tt_die);
+	pthread_mutex_lock(&data->completed_mutex);
+	all_done = (data->completed_threads == data->total_threads);
+	pthread_mutex_unlock(&data->completed_mutex);
+	return (all_done);
+}
+
+void	mark_philosopher_completed(t_thread *philo)
+{
+	pthread_mutex_lock(&philo->cycles_mutex);
+	if (!philo->completed)
+	{
+		philo->completed = 1;
+		pthread_mutex_lock(&philo->data->completed_mutex);
+		philo->data->completed_threads++;
+		pthread_mutex_unlock(&philo->data->completed_mutex);
+	}
+	pthread_mutex_unlock(&philo->cycles_mutex);
+}
+
+void	check_philosopher(t_thread *philo)
+{
+	long	current_time;
+
+	current_time = get_time_in_ms();
+	if (get_cycles(philo) == 0)
+		mark_philosopher_completed(philo);
+	else
+		check_if_starved(philo, current_time);
 }
 
 void	*monitor_routine(void *arg)
 {
 	t_data	*data;
-	long	current_time;
-	long	tt_die;
 	int		i;
 
 	data = (t_data *)arg;
-	tt_die = data->tt_die;
-	i = 0;
 	ft_usleep(50);
+	i = 0;
 	while (1)
 	{
-		current_time = get_time_in_ms();
-		monitor(&data->philo[i], current_time, tt_die);
-		if (is_philo_dead(data))
+		if (should_monitor(&data->philo[i], data->tt_die))
+			check_philosopher(&data->philo[i]);
+		if (is_philo_dead(data) || all_philosophers_done(data))
 			return (NULL);
-		i++;
-		if (i >= data->total_threads)
-			i = 0;
+		i = (i + 1) % data->total_threads;
 		ft_usleep(3);
 	}
 	return (NULL);
-}
-
-void	monitor(t_thread *philo, long current_time, long tt_die)
-{
-	long	last_meal_time;
-	long	elapsed_time;
-
-	pthread_mutex_lock(&philo->last_meal_mutex);
-	last_meal_time = philo->last_meal;
-	pthread_mutex_unlock(&philo->last_meal_mutex);
-	if (current_time - last_meal_time > tt_die)
-	{
-		pthread_mutex_lock(&philo->data->print_mutex);
-		if (!is_philo_dead(philo->data))
-		{
-			pthread_mutex_lock(&philo->data->start_routine_mutex);
-			elapsed_time = get_time_in_ms() - philo->data->start_routine;
-			pthread_mutex_unlock(&philo->data->start_routine_mutex);
-			printf("%ld %i died\n", elapsed_time, philo->id);
-			set_philo_dead(philo->data);
-		}
-		pthread_mutex_unlock(&philo->data->print_mutex);
-	}
 }

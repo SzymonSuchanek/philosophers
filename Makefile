@@ -6,18 +6,19 @@
 #    By: ssuchane <ssuchane@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/07/03 15:54:07 by ssuchane          #+#    #+#              #
-#    Updated: 2024/10/23 21:32:40 by ssuchane         ###   ########.fr        #
+#    Updated: 2024/11/03 18:31:46 by ssuchane         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 MAKEFLAGS += -s
 NAME = philo
 CC = gcc
-FLAGS = -Wall -Wextra -Werror -g -pthread 
+FLAGS = -Wall -Wextra -Werror -g -pthread
 RM = rm -f
 
 SRCS =	init.c \
 		monitor.c \
+		monitor_utils.c \
 		philo.c \
 		protect_data.c \
 		routine.c \

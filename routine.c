@@ -6,7 +6,7 @@
 /*   By: ssuchane <ssuchane@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/16 19:26:19 by ssuchane          #+#    #+#             */
-/*   Updated: 2024/10/30 20:18:31 by ssuchane         ###   ########.fr       */
+/*   Updated: 2024/11/03 17:14:18 by ssuchane         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ void	handle_single_philosopher(t_thread *philo, long start_time)
 	printf("%ld %i has taken a fork\n", get_time_in_ms() - start_time,
 		philo->id);
 	ft_usleep(philo->data->tt_die);
-		printf("%ld %i died\n", get_time_in_ms() - start_time, philo->id);
+	printf("%ld %i died\n", get_time_in_ms() - start_time, philo->id);
 }
 
 void	take_forks(t_thread *philo, long start_time)
